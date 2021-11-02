@@ -1061,7 +1061,6 @@ func (s *cacheSchedule2) runSchedule(taskid string) {
 		last time.Time
 		next time.Time
 	)
-	last = time.Now()
 
 	// 计算出锁的续约时间
 	task.cronsub = expr.Next(last).Sub(last) / 4
@@ -1070,13 +1069,13 @@ func (s *cacheSchedule2) runSchedule(taskid string) {
 	}
 
 	for {
+		last = time.Now()
 		next = expr.Next(last)
 		select {
 		case <-task.close:
 			log.Info("close task Schedule", zap.String("taskid", taskid), zap.Any("name", task.name))
 			return
 		case <-time.After(next.Sub(last)):
-			last = next
 			if !task.canrun {
 				log.Warn("task is stop run by auto schedule", zap.String("taskname", task.name), zap.String("taskid", task.id))
 				continue
